@@ -1,0 +1,39 @@
+# Dipendenze
+node_modules/
+
+# File di configurazione sensibili
+.env
+.env.*
+!.env.example
+
+# File di sistema (macOS)
+# .DS_Store
+
+# Cache e build
+.cache/
+artifacts/
+coverage/  # Se usi la code coverage
+dist/      # Se usi un processo di build che crea una cartella "dist"
+
+# Editor e IDE
+.idea/     # Cartella di configurazione di IntelliJ IDEA/WebStorm
+.vscode/   # Cartella di configurazione di VS Code
+*.swp      # File temporanei di Vim
+
+# Log
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lockfile generati automaticamente (opzionale, vedi nota sotto)
+# package-lock.json
+# yarn.lock
+
+# Altri file temporanei
+*.tmp
+*.bak
+
+# File generato dallo script di deploy
+contract-address.json

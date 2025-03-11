@@ -1,0 +1,33 @@
+{
+  "name": "lhi-lecce-nft",
+  "version": "1.0.0",
+  "description": "NFT project for crowdfunding the LHI Italy Lecce real estate development.",
+  "main": "hardhat.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npx hardhat test"
+  },
+  "keywords": [
+    "nft",
+    "solidity",
+    "hardhat",
+    "ethereum",
+    "polygon",
+    "base",
+    "real",
+    "estate",
+    "crowdfunding",
+    "lecce"
+  ],
+  "author": "lawyer.marcello.stanca@gmail.com",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.20.1"
+  }
+}
