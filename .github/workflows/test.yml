@@ -1,0 +1,39 @@
+name: Hardhat Tests
+
+on:
+  push:
+    branches:
+      - main  # Esegui i test quando fai il push sul branch main (o master)
+  pull_request:
+    branches:
+      - main  # Esegui i test quando apri una pull request verso main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Usa un'immagine Ubuntu (potresti usare anche windows-latest, ma Ubuntu è più comune)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18  # Usa una versione specifica di Node.js (usa la TUA versione!)
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Compile contracts
+      run: npx hardhat compile
+
+    - name: Run tests
+      run: npx hardhat test
+      env:
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} # Definisci la variabile, che poi imposteremo
+        POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+        MUMBAI_RPC_URL: ${{ secrets.MUMBAI_RPC_URL }}
+        BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+        BASE_GOERLI_RPC_URL: ${{ secrets.BASE_GOERLI_RPC_URL }}
+        POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
