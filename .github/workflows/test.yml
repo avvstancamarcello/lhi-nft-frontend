@@ -3,14 +3,14 @@ name: Hardhat Tests
 on:
   push:
     branches:
-      - main  # Esegui i test quando fai il push sul branch main (o master)
+      - main
   pull_request:
     branches:
-      - main  # Esegui i test quando apri una pull request verso main
+      - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Usa un'immagine Ubuntu (potresti usare anche windows-latest, ma Ubuntu è più comune)
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -19,7 +19,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 18  # Usa una versione specifica di Node.js (usa la TUA versione!)
+        node-version: 18  # Usa la TUA versione di Node.js
 
     - name: Install dependencies
       run: npm install
@@ -29,11 +29,13 @@ jobs:
 
     - name: Run tests
       run: npx hardhat test
-      env:
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} # Definisci la variabile, che poi imposteremo
+      env:  # <-- QUESTA È LA SEZIONE IMPORTANTE
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-        MUMBAI_RPC_URL: ${{ secrets.MUMBAI_RPC_URL }}
+        AMOY_RPC_URL: ${{ secrets.AMOY_RPC_URL }}
         BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-        BASE_GOERLI_RPC_URL: ${{ secrets.BASE_GOERLI_RPC_URL }}
+        BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+        SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }} #Assicurati che ci sia
         POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
         BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+        ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
