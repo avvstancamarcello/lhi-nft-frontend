@@ -11,38 +11,47 @@ if (!PRIVATE_KEY) {
 module.exports = {
   solidity: "0.8.20",
   networks: {
-    hardhat: { // Rete locale
+    hardhat: {
       chainId: 31337,
     },
+    localhost: { // Aggiungi questa configurazione per localhost
+      url: "http://127.0.0.1:8545",
+    },
     polygon: {
-      url: process.env.POLYGON_RPC_URL || "https://polygon-rpc.com/", // Usa la tua variabile o un URL di fallback
+      url: process.env.POLYGON_RPC_URL || "https://polygon-rpc.com/",
       accounts: [PRIVATE_KEY],
       chainId: 137,
     },
-    mumbai: {
-      url: process.env.MUMBAI_RPC_URL || "https://rpc-mumbai.maticvigil.com/",
+    amoy: { // Rete corretta per la testnet di Polygon
+      url: process.env.AMOY_RPC_URL || "https://rpc-amoy.polygon.technology", // Usa la variabile corretta
       accounts: [PRIVATE_KEY],
-      chainId: 80001,
-      gasPrice: 8000000000, // A volte necessario su Mumbai
+      chainId: 80002, // Chain ID corretto per Amoy
+      // gasPrice: 8000000000, // Rimuovi se non necessario
     },
     base: {
       url: process.env.BASE_RPC_URL || "https://mainnet.base.org/",
       accounts: [PRIVATE_KEY],
       chainId: 8453,
     },
-    baseGoerli: {
-      url: process.env.BASE_GOERLI_RPC_URL || "https://goerli.base.org/",
+    baseSepolia: { // Usa un nome coerente: baseSepolia
+      url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org", // Usa la variabile corretta
       accounts: [PRIVATE_KEY],
-      chainId: 84531,
-      gasPrice: 1000000000, // Potrebbe essere necessario su Goerli
+      chainId: 84532, // Chain ID corretto per Base Sepolia
+      // gasPrice: 1000000000, // Rimuovi se non necessario
+    },
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org",
+      accounts: [PRIVATE_KEY],
+      chainId: 11155111,
     },
   },
   etherscan: {
     apiKey: {
       polygon: process.env.POLYGONSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY, // Puoi usare la stessa API key
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY, // Usiamo la stessa API key per Amoy
       base: process.env.BASESCAN_API_KEY,
-      baseGoerli: process.env.BASESCAN_API_KEY, // Puoi usare la stessa API key
+      baseGoerli: process.env.BASESCAN_API_KEY, // Usa baseSepolia
+      sepolia: process.env.ETHERSCAN_API_KEY, // Usa Etherscan per Sepolia
     },
     customChains: [
       {
@@ -53,14 +62,31 @@ module.exports = {
           browserURL: "https://basescan.org",
         },
       },
-      {
-        network: "baseGoerli",
-        chainId: 84531,
+      {  //Rinomina in baseSepolia
+        network: "baseSepolia",  // Usa lo stesso nome della rete
+        chainId: 84532, // Chain ID corretto
         urls: {
-          apiURL: "https://api-goerli.basescan.org/api",
-          browserURL: "https://goerli.basescan.org",
+            apiURL:  "https://api-sepolia.basescan.org/api",
+            browserURL: "https://sepolia.basescan.org",
         },
       },
+      {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io",
+        },
+      },
+        //Aggiungi la configurazione per Amoy, se vuoi verificarlo.
+        {
+            network: "amoy",
+            chainId: 80002,
+            urls:{
+                apiURL: "https://api-amoy.polygonscan.com/api",
+                browserURL: "https://amoy.polygonscan.com/"
+            }
+        }
     ],
   },
 };

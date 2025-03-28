@@ -1,16 +1,15 @@
-// scripts/deploy.js
 const hre = require("hardhat");
 const fs = require("fs"); // Importa il modulo 'fs' (File System)
 
 async function main() {
   try {
-    const LhiLecceNFT = await hre.ethers.getContractFactory("LhiLecceNFT");
-    const lhiLecceNFT = await LhiLecceNFT.deploy(""); // Passa una stringa vuota come baseURI
+    const LHILecceNFT = await hre.ethers.getContractFactory("LHILecceNFT"); // NOME CORRETTO
+    const lhiLecceNFT = await LHILecceNFT.deploy(""); // Passa una stringa vuota come baseURI
 
     await lhiLecceNFT.waitForDeployment();
 
     const contractAddress = lhiLecceNFT.target;
-    console.log(`LhiLecceNFT deployed to ${contractAddress}`);
+    console.log(`LHILecceNFT deployed to ${contractAddress}`); // NOME CORRETTO
 
     // Salva l'indirizzo del contratto in un file JSON
     fs.writeFileSync(

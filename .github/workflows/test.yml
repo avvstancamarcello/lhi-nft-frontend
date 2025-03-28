@@ -26,7 +26,6 @@ jobs:
 
     - name: Compile contracts
       run: npx hardhat compile
-      #Se rimuovi la riga seguente, ricordati di rimuovere i secrets corrispondenti da Github
       env:  # <-- AGGIUNGI QUESTA SEZIONE
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
@@ -50,4 +49,3 @@ jobs:
         POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
         BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
         ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
-

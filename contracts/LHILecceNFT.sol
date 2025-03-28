@@ -3,11 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-//import "@openzeppelin/contracts/utils/math/SafeMath.sol"; // RIMOSSA
 
-contract LhiLecceNFT is ERC1155URIStorage, Ownable {
-    //using SafeMath for uint256; // RIMOSSA
-
+contract LHILecceNFT is ERC1155URIStorage, Ownable {
     string public name = "LHI Lecce NFT";
     string public symbol = "LHILE";
 
@@ -53,7 +50,6 @@ contract LhiLecceNFT is ERC1155URIStorage, Ownable {
         pricesInWei[23] = 0.00090448 ether;
         pricesInWei[24] = 0.00094332 ether;
 
-
         for (uint256 i = 1; i <= 24; i++) {
             maxSupply[i] = 50000;
             isValidTokenId[i] = true;
@@ -73,26 +69,26 @@ contract LhiLecceNFT is ERC1155URIStorage, Ownable {
         emit NFTMinted(msg.sender, tokenId, quantity, pricesInWei[tokenId]);
     }
 
-     function uri(uint256 tokenId) public view override returns (string memory) {
+    function uri(uint256 tokenId) public view override returns (string memory) {
         require(isValidTokenId[tokenId], "Invalid tokenId");
         return string(abi.encodePacked(super.uri(tokenId), "preview.jpg")); // Usa il baseURI
     }
 
     function withdrawFunds() external onlyOwner {
         uint256 balance = address(this).balance;
-        require(balance > 0, "No funds available");
+        require(balance > 0, "No funds to withdraw"); // CORRETTO
 
         payable(withdrawWallet).transfer(balance);
         emit FundsWithdrawn(withdrawWallet, balance);
     }
-
+  
     function setBaseURI(string memory newBaseURI) external onlyOwner {
         _setURI(newBaseURI);
         emit BaseURIUpdated(newBaseURI);
     }
 
     function burn(uint256 tokenId, uint256 quantity) external {
-        require(balanceOf(msg.sender, tokenId)>= quantity, "Insufficient balance");
+        require(balanceOf(msg.sender, tokenId) >= quantity, "Insufficient balance");
         _burn(msg.sender, tokenId, quantity);
         emit NFTBurned(msg.sender, tokenId, quantity);
     }
@@ -101,4 +97,3 @@ contract LhiLecceNFT is ERC1155URIStorage, Ownable {
     // safeTransferFrom, safeBatchTransferFrom, balanceOf, balanceOfBatch,
     // setApprovalForAll, isApprovedForAll
 }
-
