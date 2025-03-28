@@ -10,7 +10,7 @@ node_modules/
 # .DS_Store
 
 # Cache e build
-.cache/
+cache/
 artifacts/
 coverage/  # Se usi la code coverage
 dist/      # Se usi un processo di build che crea una cartella "dist"

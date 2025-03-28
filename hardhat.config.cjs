@@ -1,57 +1,52 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY; // Usa la variabile d'ambiente per la chiave privata
 
 if (!PRIVATE_KEY) {
-  throw new Error("Please set your PRIVATE_KEY in a .env file");
+  throw new Error("Per favore, definisci PRIVATE_KEY nel file .env");
 }
 
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.20",
   networks: {
     hardhat: {
       chainId: 31337,
     },
-    localhost: { // Aggiungi questa configurazione per localhost
+    localhost: {
       url: "http://127.0.0.1:8545",
     },
     polygon: {
-      url: process.env.POLYGON_RPC_URL || "https://polygon-rpc.com/",
+      url: "https://proportionate-dry-brook.matic.quiknode.pro/752b1e43a682209ddc19a49978c10acac9458739",
       accounts: [PRIVATE_KEY],
       chainId: 137,
     },
-    amoy: { // Rete corretta per la testnet di Polygon
-      url: process.env.AMOY_RPC_URL || "https://rpc-amoy.polygon.technology", // Usa la variabile corretta
+    amoy: {
+      url: "https://cold-yolo-tent.matic-amoy.quiknode.pro/0946df8b9a68a2c0cbe86704a1e292aaa4697b95",
       accounts: [PRIVATE_KEY],
-      chainId: 80002, // Chain ID corretto per Amoy
-      // gasPrice: 8000000000, // Rimuovi se non necessario
+      chainId: 80002,
     },
     base: {
-      url: process.env.BASE_RPC_URL || "https://mainnet.base.org/",
+      url: "https://dawn-spring-hill.base-mainnet.quiknode.pro/85db06e7c4f5260e4128fdf91e8d03bf54b507d3",
       accounts: [PRIVATE_KEY],
       chainId: 8453,
     },
-    baseSepolia: { // Usa un nome coerente: baseSepolia
-      url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org", // Usa la variabile corretta
+    baseSepolia: {
+      url: "https://evocative-sparkling-model.base-sepolia.quiknode.pro/0787ca6fcee8ea4b0f0adc88d6f69abcf3a69729",
       accounts: [PRIVATE_KEY],
-      chainId: 84532, // Chain ID corretto per Base Sepolia
-      // gasPrice: 1000000000, // Rimuovi se non necessario
+      chainId: 84532,
     },
     sepolia: {
-      url: process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org",
+      url: "https://blue-multi-hill.ethereum-sepolia.quiknode.pro/5328e177aeef3cd63a0dc5a02af208d21bc094a0",
       accounts: [PRIVATE_KEY],
       chainId: 11155111,
     },
   },
   etherscan: {
     apiKey: {
-      polygon: process.env.POLYGONSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY, // Usiamo la stessa API key per Amoy
-      base: process.env.BASESCAN_API_KEY,
-      baseGoerli: process.env.BASESCAN_API_KEY, // Usa baseSepolia
-      sepolia: process.env.ETHERSCAN_API_KEY, // Usa Etherscan per Sepolia
+      polygon: process.env.POLYGONSCAN_API_KEY, // Richiama la variabile dal file .env
+      base: process.env.BASESCAN_API_KEY, // Richiama la variabile dal file .env
+      sepolia: process.env.ETHERSCAN_API_KEY, // Richiama la variabile dal file .env
     },
     customChains: [
       {
@@ -62,12 +57,12 @@ module.exports = {
           browserURL: "https://basescan.org",
         },
       },
-      {  //Rinomina in baseSepolia
-        network: "baseSepolia",  // Usa lo stesso nome della rete
-        chainId: 84532, // Chain ID corretto
+      {
+        network: "baseSepolia",
+        chainId: 84532,
         urls: {
-            apiURL:  "https://api-sepolia.basescan.org/api",
-            browserURL: "https://sepolia.basescan.org",
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org",
         },
       },
       {
@@ -78,15 +73,14 @@ module.exports = {
           browserURL: "https://sepolia.etherscan.io",
         },
       },
-        //Aggiungi la configurazione per Amoy, se vuoi verificarlo.
-        {
-            network: "amoy",
-            chainId: 80002,
-            urls:{
-                apiURL: "https://api-amoy.polygonscan.com/api",
-                browserURL: "https://amoy.polygonscan.com/"
-            }
-        }
+      {
+        network: "amoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com/",
+        },
+      },
     ],
   },
 };

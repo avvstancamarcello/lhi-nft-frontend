@@ -4,8 +4,7 @@ const fs = require("fs"); // Importa il modulo 'fs' (File System)
 async function main() {
   try {
     const LHILecceNFT = await hre.ethers.getContractFactory("LHILecceNFT"); // NOME CORRETTO
-    const lhiLecceNFT = await LHILecceNFT.deploy(""); // Passa una stringa vuota come baseURI
-
+    const lhiLecceNFT = await LHILecceNFT.deploy("https://example.com/metadata/");
     await lhiLecceNFT.waitForDeployment();
 
     const contractAddress = lhiLecceNFT.target;
