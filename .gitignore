@@ -37,3 +37,6 @@ yarn-error.log*
 
 # File generato dallo script di deploy
 contract-address.json
+
+# Script non tracciati
+scripts/verifyPrivateKey2.js

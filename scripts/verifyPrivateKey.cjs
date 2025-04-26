@@ -1,16 +1,17 @@
-require('dotenv').config();
-const { ethers } = require('ethers');
+import dotenv from "dotenv";
 
-async function main() {
-  const provider = new ethers.JsonRpcProvider(process.env.BASE_RPC_URL); // Usa l'URL RPC della rete che vuoi testare
+dotenv.config();
 
-  try {
-    const balance = await provider.getBalance(process.env.WALLET_ADDRESS);
-    console.log(`Account address: ${process.env.WALLET_ADDRESS}`);
-    console.log(`Account balance: ${ethers.utils.formatEther(balance)} ETH`);
-  } catch (error) {
-    console.error('Errore nella verifica della chiave privata:', error);
-  }
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+if (!PRIVATE_KEY) {
+  console.error("Errore: PRIVATE_KEY non definita nel file .env");
+  process.exit(1);
 }
 
-main();
+if (PRIVATE_KEY.startsWith("0x") && PRIVATE_KEY.length === 66) {
+  console.log("La PRIVATE_KEY è valida.");
+} else {
+  console.error("Errore: La PRIVATE_KEY non è valida. Deve iniziare con '0x' e contenere 64 caratteri esadecimali.");
+  process.exit(1);
+}

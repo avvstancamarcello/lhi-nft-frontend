@@ -1,0 +1,34 @@
+Piano per costruire un sistema off-chain per la distribuzione degli NFT generati dallo smart contract LHILecceNFT.
+
+1. **Modifiche allo Smart Contract**
+   - Lo smart contract supporta già la modifica del `baseURI` tramite la funzione `setBaseURI`. 
+   - Questo consente di aggiornare i file JSON su IPFS per cambiare le immagini associate agli NFT.
+   - Non sono necessarie modifiche immediate al contratto, ma è importante mantenere questa funzione per aggiornamenti futuri.
+
+2. **Server Off-Chain**
+   - Il server off-chain sarà responsabile di:
+     - Interfacciarsi con il contratto per leggere i dati degli NFT.
+     - Caricare i file JSON su IPFS.
+     - Gestire le richieste degli utenti per selezionare e acquistare NFT.
+   - Tecnologie: **Node.js** con **Express.js** per il backend.
+
+3. **Integrazione con IPFS**
+   - Utilizzeremo una libreria come `ipfs-http-client` per caricare i file JSON su IPFS.
+   - I file JSON conterranno i metadati degli NFT, inclusi i riferimenti alle immagini.
+
+4. **Frontend per PC e Smartphone**
+   - Il frontend sarà sviluppato con **React.js** per il web e **React Native** per le app mobili.
+   - Funzionalità per gli utenti:
+     - Visualizzare i 24 NFT disponibili.
+     - Selezionare un NFT e procedere con l'acquisto.
+     - Collegare il proprio wallet (es. MetaMask).
+
+5. **Sicurezza**
+   - Le immagini matrice saranno custodite su hardware TREZOR e non saranno direttamente accessibili dal server.
+   - Solo i file JSON saranno caricati su IPFS.
+
+6. **Passaggi Successivi**
+   - Creare il server off-chain e il frontend.
+   - Caricare i file JSON su IPFS e aggiornare il `baseURI` nel contratto.
+
+Nota: Conferma se desideri iniziare con il server off-chain o il frontend.

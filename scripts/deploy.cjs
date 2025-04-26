@@ -1,26 +1,32 @@
-const hre = require("hardhat");
-const fs = require("fs"); // Importa il modulo 'fs' (File System)
+require("dotenv").config();
+const { ethers } = require("hardhat");
 
 async function main() {
-  try {
-    const LHILecceNFT = await hre.ethers.getContractFactory("LHILecceNFT"); // NOME CORRETTO
-    const lhiLecceNFT = await LHILecceNFT.deploy("https://example.com/metadata/");
-    await lhiLecceNFT.waitForDeployment();
+  console.log("Deploying contract...");
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying with account:", deployer.address);
 
-    const contractAddress = lhiLecceNFT.target;
-    console.log(`LHILecceNFT deployed to ${contractAddress}`); // NOME CORRETTO
+  const baseURI = process.env.BASE_URI || "ipfs://QmExampleHash/";
+  const owner = process.env.OWNER_WALLET && process.env.OWNER_WALLET !== "" ? process.env.OWNER_WALLET : deployer.address;
+  const paymentToken = process.env.PAYMENT_TOKEN || "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 
-    // Salva l'indirizzo del contratto in un file JSON
-    fs.writeFileSync(
-      "contract-address.json",
-      JSON.stringify({ address: contractAddress }, null, 2) // Usa JSON.stringify con indentazione (per leggibilità)
-    );
-    console.log("Contract address saved to contract-address.json");
+  console.log("DEBUG - baseURI:", baseURI, typeof baseURI);
+  console.log("DEBUG - owner:", owner, typeof owner);
+  console.log("DEBUG - paymentToken:", paymentToken, typeof paymentToken);
 
-  } catch (error) {
-    console.error("Deployment error:", error);
-    process.exitCode = 1;
-  }
+  console.log(`Deploying with baseURI: ${baseURI}, owner: ${owner}, paymentToken: ${paymentToken}`);
+
+  const ContractFactory = await ethers.getContractFactory("LHILecceNFT");
+  console.log("Sending deployment transaction...");
+
+  const contract = await ContractFactory.deploy(baseURI, owner, paymentToken);
+  await contract.deployed();
+  console.log("Contratto deployato all'indirizzo:", contract.address);
 }
 
-main();
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
