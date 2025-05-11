@@ -9,55 +9,71 @@
       font-family: Arial, sans-serif;
       background-color: #ffffff;
       padding: 20px;
+      margin: 0;
+    }
+    .header {
       text-align: center;
+      margin-bottom: 20px;
     }
-    h1 {
-      color: crimson;
-      font-size: 1.5em;
-      margin-bottom: 0.2em;
+    .header b {
+      font-size: 110%;
+      color: #b22222;
     }
-    .subtitle {
-      font-size: 1.2em;
-      margin: 0.3em 0;
+    .header .link {
+      display: block;
+      font-size: 100%;
+      margin-top: 4px;
+      color: #1a0dab;
     }
-    .green { color: green; font-weight: bold; }
-    .red { color: red; font-weight: bold; }
-    .darkgreen { color: darkgreen; font-weight: bold; }
-    .preview-container {
-      margin: 20px auto;
-      border: 4px solid blue;
-      width: 350px;
-      height: 350px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .header .subtitle {
+      font-size: 110%;
+      margin-top: 10px;
+    }
+    .green {
+      color: green;
+      font-weight: bold;
+    }
+    .red {
+      color: red;
+      font-weight: bold;
+    }
+    .darkgreen {
+      color: darkgreen;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
     }
     #preview {
-      max-width: 100%;
-      max-height: 100%;
+      display: block;
+      margin: 10px auto;
+      width: 350px;
+      height: 350px;
+      object-fit: contain;
+      border: 3px solid blue;
     }
-    .button-grid {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
       gap: 10px;
       justify-items: center;
-      margin: 20px auto;
-      max-width: 400px;
+      margin-bottom: 20px;
     }
-    .img-btn {
+    .token-button {
       background-color: #00bcd4;
       color: white;
+      padding: 10px 15px;
       border: none;
-      padding: 10px;
+      border-radius: 5px;
       font-size: 16px;
-      border-radius: 6px;
       cursor: pointer;
     }
-    .img-btn:hover {
+    .token-button:hover {
       background-color: #0097a7;
-    }
-    .controls {
-      margin-top: 20px;
     }
     #log {
       margin-top: 20px;
@@ -65,33 +81,45 @@
       padding: 10px;
       border-radius: 5px;
       min-height: 40px;
+      text-align: center;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .actions input, .actions button {
+      font-size: 16px;
+      padding: 10px;
+      margin: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>LHI Lecce Medical Hotel Italia</h1>
-  <div class="subtitle"><a href="https://lhilecce.it" target="_blank">lhilecce.it</a></div>
-  <div class="subtitle green">CROWNFUNDING INTERNATIONAL su blockchain Polygon (Matic-Ethereum)</div>
-  <div class="subtitle red">PROGETTO DI RICERCA MEDICA: <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span></div>
-  <div class="subtitle">
-    <a href="https://maps.app.goo.gl/mJDgv9wgqtEVovZGA" target="_blank">Esplora Posizione su Google Maps</a>
+  <div class="container">
+    <div class="header">
+      <b>LHI Lecce MEDICAL HOTEL ITALIA</b>
+      <a class="link" href="https://lhilecce.it" target="_blank">lhilecce.it</a>
+      <div class="subtitle">
+        <span class="green">CROWNFOUNDING INTERNATIONAL</span> su blockchain Polygon (Matic-Ethereum)<br>
+        <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
+      </div>
+    </div>
+
+    <img id="preview" src="" alt="Anteprima NFT" />
+
+    <div class="grid" id="button-container"></div>
+
+    <div class="actions">
+      <button id="connect-btn">Connetti Metamask</button><br/>
+      Quantità: <input type="number" id="quantity" value="1" min="1" max="10" />
+      <button id="mint-btn" disabled>Mint NFT</button>
+    </div>
+
+    <div id="log">Status: In attesa di connessione...</div>
   </div>
-
-  <div class="preview-container">
-    <img id="preview" src="images/01.jpg" alt="Anteprima NFT" />
-  </div>
-
-  <div class="button-grid" id="button-grid"></div>
-
-  <div class="controls">
-    <button id="connect-btn">Connetti Metamask</button>
-    <input type="number" id="quantity" value="1" min="1" max="10" />
-    <button id="mint-btn" disabled>Mint NFT</button>
-  </div>
-
-  <div id="log">Status: In attesa di connessione...</div>
 
   <script>
+    const tokenValues = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
     const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
     const CONTRACT_ABI = [
       {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"},{"internalType":"address","name":"_paymentToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
@@ -99,72 +127,79 @@
       {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
     ];
 
-    let provider, signer, contract;
+    let provider, signer, contract, selectedTokenId = null;
+
     const previewImg = document.getElementById('preview');
-    const buttonGrid = document.getElementById('button-grid');
-    const connectBtn = document.getElementById('connect-btn');
+    const logDiv = document.getElementById('log');
     const mintBtn = document.getElementById('mint-btn');
     const quantityInput = document.getElementById('quantity');
-    const logDiv = document.getElementById('log');
 
-    let currentTokenId = 1;
-
-    function log(message) {
-      logDiv.textContent = message;
-    }
-
-    function updatePreview(id) {
-      const padded = id.toString().padStart(2, '0');
-      const extensions = ['.jpg', '.JPG'];
-      for (const ext of extensions) {
-        const url = `images/${padded}${ext}`;
-        fetch(url, { method: 'HEAD' }).then(res => {
-          if (res.ok) previewImg.src = url;
-        });
-      }
-    }
-
-    for (let i = 1; i <= 24; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      btn.className = 'img-btn';
-      btn.onclick = () => {
-        currentTokenId = i;
-        updatePreview(i);
-      };
-      buttonGrid.appendChild(btn);
-    }
-
+    const connectBtn = document.getElementById('connect-btn');
     connectBtn.onclick = async () => {
-      if (!window.ethereum) {
-        log('❌ Installa Metamask.');
-        return;
-      }
+      if (!window.ethereum) return log("❌ Installa Metamask.");
       try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-        log('✅ Connesso a Metamask!');
+        log("✅ Connesso a Metamask.");
         mintBtn.disabled = false;
       } catch (err) {
-        log('❌ Errore connessione: ' + err.message);
+        log("❌ Connessione fallita: " + err.message);
       }
     };
 
     mintBtn.onclick = async () => {
+      if (!selectedTokenId) return log("❌ Seleziona un NFT.");
       const quantity = parseInt(quantityInput.value);
       try {
-        const price = await contract.pricesInWei(currentTokenId);
-        const totalPrice = price.mul(quantity);
-        log(`⏳ Minting token ${currentTokenId}...`);
-        const tx = await contract.mintNFT(currentTokenId, quantity, false, { value: totalPrice });
+        const price = await contract.pricesInWei(selectedTokenId);
+        const total = price.mul(quantity);
+        log(`⏳ Mint NFT ${selectedTokenId}...`);
+        const tx = await contract.mintNFT(selectedTokenId, quantity, false, { value: total });
         await tx.wait();
-        log('✅ Mint completato! Hash: ' + tx.hash);
+        log("✅ Mint completato. Tx Hash: " + tx.hash);
       } catch (err) {
-        log('❌ Errore mint: ' + (err.data?.message || err.message));
+        log("❌ Mint fallito: " + (err.data?.message || err.message));
       }
     };
+
+    function renderButtons() {
+      const container = document.getElementById("button-container");
+      tokenValues.forEach(val => {
+        const btn = document.createElement("button");
+        btn.textContent = val;
+        btn.className = "token-button";
+        btn.onclick = () => {
+          selectedTokenId = val;
+          const padded = val.toString().padStart(2, '0');
+          const extensions = ['.jpg', '.JPG'];
+          let found = false;
+          for (const ext of extensions) {
+            const path = `images/${padded}${ext}`;
+            fetch(path, { method: "HEAD" }).then(res => {
+              if (res.ok && !found) {
+                previewImg.src = path;
+                found = true;
+              }
+            });
+          }
+          if (!found) {
+            previewImg.src = "";
+            log("⚠️ Anteprima non trovata.");
+          } else {
+            log("");
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function log(message) {
+      logDiv.textContent = message;
+    }
+
+    window.onload = renderButtons;
   </script>
 </body>
 </html>
