@@ -133,8 +133,8 @@
     const logDiv = document.getElementById('log');
     const mintBtn = document.getElementById('mint-btn');
     const quantityInput = document.getElementById('quantity');
-
     const connectBtn = document.getElementById('connect-btn');
+
     connectBtn.onclick = async () => {
       if (!window.ethereum) return log("❌ Installa Metamask.");
       try {
@@ -173,23 +173,16 @@
         btn.onclick = () => {
           selectedTokenId = val;
           const padded = val.toString().padStart(2, '0');
-          const extensions = ['.jpg', '.JPG'];
-          let found = false;
-          for (const ext of extensions) {
-            const path = `images/${padded}${ext}`;
-            fetch(path, { method: "HEAD" }).then(res => {
-              if (res.ok && !found) {
-                previewImg.src = path;
-                found = true;
-              }
-            });
-          }
-          if (!found) {
-            previewImg.src = "";
-            log("⚠️ Anteprima non trovata.");
-          } else {
-            log("");
-          }
+          const path = `images/${padded}.jpg`;
+          fetch(path, { method: "HEAD" }).then(res => {
+            if (res.ok) {
+              previewImg.src = path;
+              log("");
+            } else {
+              previewImg.src = "";
+              log("⚠️ Anteprima non trovata.");
+            }
+          });
         };
         container.appendChild(btn);
       });
