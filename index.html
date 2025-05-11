@@ -11,28 +11,39 @@
       padding: 20px;
       text-align: center;
     }
-    .header-text {
+    .header-text, .link-line, .description {
+      font-size: 110%;
       font-weight: bold;
-      font-size: 80%;
+      margin-bottom: 8px;
+    }
+    .header-text {
       color: red;
-      margin-bottom: 5px;
     }
     .link-line a {
       color: blue;
       text-decoration: none;
       font-weight: bold;
     }
-    .description {
-      font-size: 110%;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    .green { color: green; }
-    .red { color: red; }
-    .darkgreen { color: darkgreen; }
+    .description .green { color: green; }
+    .description .red { color: red; }
+    .description .darkgreen { color: darkgreen; }
+    .description .highlight { color: red; }
     .container {
       max-width: 600px;
+      margin: 0 auto;
+    }
+    .preview-box {
+      width: 350px;
+      height: 350px;
+      border: 3px solid blue;
       margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-box img {
+      max-width: 100%;
+      max-height: 100%;
     }
     .buttons {
       display: grid;
@@ -49,19 +60,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .preview-box {
-      width: 350px;
-      height: 350px;
-      border: 3px solid blue;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .preview-box img {
-      max-width: 100%;
-      max-height: 100%;
-    }
     #log {
       margin-top: 15px;
       background: #f1f1f1;
@@ -74,21 +72,28 @@
 <body>
   <div class="container">
     <div class="header-text">LHI LECCE MEDICAL HOTEL ITALIA.</div>
-    <div class="link-line"><a href="https://www.lhilecce.it" target="_blank">www.lhilecce.it</a></div>
+    <div class="link-line">
+      <a href="https://lhilecce.it" target="_blank">lhilecce.it</a>
+    </div>
+    <div class="link-line">
+      <a href="https://maps.app.goo.gl/mJDgv9wgqtEVovZGA" target="_blank">📍 Esplora Posizione</a>
+    </div>
     <div class="description">
       <span class="green">CROWNFUNDING INTERNATIONAL</span> su blockchain Polygon (Matic-Ethereum)<br>
-      Progetto di ricerca medica: <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
+      Progetto di ricerca medica: <span class="highlight">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
     </div>
-
-    <button id="connect-btn">Connetti Metamask</button>
-    <div class="buttons" id="button-grid"></div>
 
     <div class="preview-box">
       <img id="preview" src="" alt="Anteprima NFT">
     </div>
 
+    <button id="connect-btn">Connetti Metamask</button>
+
+    <div class="buttons" id="button-grid"></div>
+
     <input type="number" id="quantity" value="1" min="1" max="10">
     <button id="mint-btn" disabled>Mint NFT</button>
+
     <div id="log">Status: In attesa di connessione...</div>
   </div>
 
@@ -167,7 +172,6 @@
       logDiv.textContent = message;
     }
 
-    // Inizializza i pulsanti
     window.onload = () => {
       for (let i = 1; i <= 24; i++) {
         const btn = document.createElement('button');
