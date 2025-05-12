@@ -99,6 +99,7 @@
     <div class="header">
       <b>LHI Lecce MEDICAL HOTEL ITALIA</b>
       <a class="link" href="https://lhilecce.it" target="_blank">lhilecce.it</a>
+      <a class="link" href="https://maps.app.goo.gl/mJDgv9wgqtEVovZGA" target="_blank">Esplora Posizione</a>
       <div class="subtitle">
         <span class="green">CROWNFOUNDING INTERNATIONAL</span> su blockchain Polygon (Matic-Ethereum)<br>
         <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
@@ -133,8 +134,8 @@
     const logDiv = document.getElementById('log');
     const mintBtn = document.getElementById('mint-btn');
     const quantityInput = document.getElementById('quantity');
-    const connectBtn = document.getElementById('connect-btn');
 
+    const connectBtn = document.getElementById('connect-btn');
     connectBtn.onclick = async () => {
       if (!window.ethereum) return log("❌ Installa Metamask.");
       try {
