@@ -5,6 +5,7 @@
   "main": "hardhat.config.cjs",
   "type": "commonjs",
   "scripts": {
+    "start": "node server.js",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
     "deploy": "npx hardhat run scripts/deploy.cjs"
