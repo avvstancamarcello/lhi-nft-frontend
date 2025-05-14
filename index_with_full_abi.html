@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LHI Lecce NFT Frontend</title>
+  <style>
+    body { background: #e0f7fa; color: #111; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 500px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 24px; }
+    h1 { font-size: 1.3em; margin-bottom: 18px; color: #111; text-align: center; }
+    .preview { display: flex; justify-content: center; margin-bottom: 18px; }
+    .preview img { max-width: 220px; border-radius: 8px; border: 1px solid #b2ebf2; }
+    .values, .payment-method { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+    .value-btn { background: #b2ebf2; color: #111; border: none; border-radius: 20px; padding: 8px 16px; font-size: 1em; cursor: pointer; transition: background 0.2s; }
+    .value-btn.selected { background: #0288d1; color: #fff; }
+    .qty { display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .qty input, .payment-method select { margin-left: 8px; font-size: 1em; padding: 4px; border-radius: 6px; border: 1px solid #b2ebf2; }
+    .mint-btn { width: 100%; background: #0288d1; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1.1em; cursor: pointer; margin-bottom: 18px; transition: background 0.2s; }
+    .mint-btn:disabled { background: #b2ebf2; color: #888; cursor: not-allowed; }
+    .log { background: #e0f7fa; border-radius: 8px; padding: 10px; min-height: 40px; font-size: 0.98em; margin-bottom: 18px; color: #111; word-break: break-word; }
+    @media (max-width: 600px) { .container { padding: 10px; } h1 { font-size: 1em; } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>LHI Lecce NFT. Crowdfunding universale per la Ricerca Medica.</h1>
+    <div class="preview"><img src="decripted_images/moneta_matrice.jpg" alt="Anteprima NFT" id="nft-preview"></div>
+    <div class="values" id="values"></div>
+    <div class="qty">
+      <label for="quantity">Quantità:</label>
+      <input type="number" id="quantity" min="1" max="10" value="1">
+    </div>
+    <div class="payment-method">
+      <label for="payment-method-select">Metodo di pagamento:</label>
+      <select id="payment-method-select">
+        <option value="MATIC">MATIC</option>
+        <option value="WETH">WETH</option>
+        <option value="ETH">ETH</option>
+      </select>
+    </div>
+    <button class="mint-btn" id="mint-btn">Mint NFT</button>
+    <div class="log" id="log"></div>
+  </div>
+  <script>
+    const CONTRACT_ABI = [{"inputs": [{"internalType": "string", "name": "_baseURI", "type": "string"}, {"internalType": "address", "name": "_owner", "type": "address"}, {"internalType": "address", "name": "_paymentToken", "type": "address"}], "stateMutability": "nonpayable", "type": "constructor"}, {"inputs": [{"internalType": "address", "name": "sender", "type": "address"}, {"internalType": "uint256", "name": "balance", "type": "uint256"}, {"internalType": "uint256", "name": "needed", "type": "uint256"}, {"internalType": "uint256", "name": "tokenId", "type": "uint256"}], "name": "ERC1155InsufficientBalance", "type": "error"}, {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "pricesInWei", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}];
+    const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
+    const WETH_ADDRESS = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
+    const WETH_ABI = [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function allowance(address owner, address spender) external view returns (uint256)"
+    ];
+    const nftValues = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+    let selectedValue = null;
+    let minting = false;
+    const valuesDiv = document.getElementById('values');
+    nftValues.forEach(val => {
+      const btn = document.createElement('button');
+      btn.className = 'value-btn';
+      btn.textContent = val;
+      btn.onclick = () => selectValue(val, btn);
+      valuesDiv.appendChild(btn);
+    });
+    function selectValue(val, btn) {
+      selectedValue = val;
+      document.querySelectorAll('.value-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      logMsg(`Valore selezionato: ${val}`);
+    }
+    function logMsg(msg) { document.getElementById('log').textContent = msg; }
+    document.getElementById('mint-btn').onclick = async function() {
+      if (minting) return;
+      if (!selectedValue) { logMsg('Seleziona un valore NFT.'); return; }
+      const qty = parseInt(document.getElementById('quantity').value);
+      const paymentMethod = document.getElementById('payment-method-select').value;
+      minting = true; this.disabled = true; logMsg('Inizio processo di mint...');
+      try { await mintNFT(selectedValue, qty, paymentMethod); }
+      catch (err) { logMsg('Errore: ' + (err.data?.message || err.message || err)); }
+      minting = false; this.disabled = false;
+    };
+    async function mintNFT(selectedValue, qty, paymentMethod) {
+      if (!window.ethereum) { logMsg('Installa Metamask o un wallet compatibile.'); return; }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const price = await contract.pricesInWei(selectedValue);
+      const totalPrice = price.mul(qty);
+      if (paymentMethod === 'MATIC' || paymentMethod === 'ETH') {
+        logMsg(`Invio transazione usando ${paymentMethod}...`);
+        const tx = await contract.mintNFT(selectedValue, qty, false, { value: totalPrice });
+        await tx.wait();
+        logMsg(`${paymentMethod} mint riuscito! NFT mintato con valore ${selectedValue} e quantità ${qty}`);
+      } else if (paymentMethod === 'WETH') {
+        const weth = new ethers.Contract(WETH_ADDRESS, WETH_ABI, signer);
+        const allowance = await weth.allowance(await signer.getAddress(), CONTRACT_ADDRESS);
+        if (allowance.lt(totalPrice)) {
+          logMsg('Approvo WETH...');
+          const approveTx = await weth.approve(CONTRACT_ADDRESS, totalPrice);
+          await approveTx.wait();
+        }
+        logMsg('Invio transazione usando WETH...');
+        const tx = await contract.mintNFT(selectedValue, qty, false);
+        await tx.wait();
+        logMsg('WETH mint riuscito! NFT mintato con valore ' + selectedValue + ' e quantità ' + qty);
+      } else {
+        logMsg('Metodo di pagamento non valido.');
+      }
+    }
+  </script>
+</body>
+</html>

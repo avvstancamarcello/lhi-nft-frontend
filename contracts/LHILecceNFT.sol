@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract LHILecceNFT is ERC1155URIStorage, Ownable {
+contract LHILecceNFT is ERC1155URIStorage, ERC2981, Ownable {
     using SafeERC20 for IERC20;
     string public name = "LHI Lecce NFT";
     string public symbol = "LHILE";
+    string public previewCID = "Qm..."; // CID del file preview generico
 
     mapping(uint256 => uint256) public maxSupply;
     mapping(uint256 => uint256) public totalMinted;
@@ -32,6 +34,13 @@ contract LHILecceNFT is ERC1155URIStorage, Ownable {
 
     uint256 public constant MINIMUM_TOTAL_VALUE = 6_000_000 ether; // 6 milioni di euro in wei
 
+    struct RoyaltyRange {
+        uint256 minId;
+        uint256 maxId;
+        uint96 feeNumerator; // in base 10000
+    }
+    RoyaltyRange[] public royaltyRanges;
+
     event NFTMinted(address indexed buyer, uint256 tokenId, uint256 quantity, uint256 price, string encryptedURI);
     event FundsWithdrawn(address indexed owner, uint256 amount);
     event BaseURIUpdated(string newBaseURI);
@@ -40,10 +49,16 @@ contract LHILecceNFT is ERC1155URIStorage, Ownable {
     event BurnApproved(uint256 requestId, address indexed requester, uint256 tokenId, uint256 quantity);
     event BurnDenied(uint256 requestId, address indexed requester, uint256 tokenId, uint256 quantity);
 
-    constructor(string memory _baseURI, address _owner, address _paymentToken) ERC1155(_baseURI) Ownable(_owner) {
+    constructor(string memory _baseURI, address _owner, address _paymentToken) 
+        ERC1155(_baseURI)
+        Ownable(_owner) 
+    {
         require(bytes(_baseURI).length > 0, "Base URI cannot be empty");
         withdrawWallet = _owner;
         paymentToken = IERC20(_paymentToken);
+
+        // Imposta la royalty di default (es. 5% a favore dell'owner)
+        _setDefaultRoyalty(_owner, 500); // 500 = 5% (in base 10000)
 
         // Definisci prezzi, maxSupply e tokenId validi in un unico ciclo
         uint256[24] memory percent = [
@@ -82,26 +97,68 @@ contract LHILecceNFT is ERC1155URIStorage, Ownable {
         encryptedURIs[22] = "bafybeifmwyc4ucgh5fbqlxgup5evkzk3kv7tes65vdjixtnnl2lwgkrobi";
         encryptedURIs[23] = "bafybeicgz6ztjlnzp5eet4tze74ck5x7hzumz2qfm2sc5tx6tmzhb6nu64";
         encryptedURIs[24] = "bafybeihooyvtk7fka5bfh5biqusufanljc6ngxx4vvehksq5halovui3n4";
+
+        // Imposta le fasce di royalty iniziali
+        royaltyRanges.push(RoyaltyRange(1, 15, 100));   // 1% per tokenId 1-15
+        royaltyRanges.push(RoyaltyRange(16, 24, 500));  // 5% per tokenId 16-24
+        royaltyRanges.push(RoyaltyRange(25, 50, 600));  // 6% per tokenId 25-50
     }
 
-function mintNFT(uint256 tokenId, uint256 quantity, bool payWithToken) external payable {
-    require(isValidTokenId[tokenId], "Invalid tokenId");
-    require(totalMinted[tokenId] + quantity <= maxSupply[tokenId], "Exceeds max supply");
-    require(quantity > 0, "Invalid quantity");
-
-    uint256 totalCostInWei = pricesInWei[tokenId] * quantity;
-
-    if (payWithToken) {
-        paymentToken.safeTransferFrom(msg.sender, address(this), totalCostInWei);
-    } else {
-        // Pagamento con valuta nativa (MATIC su Polygon, ETH su Ethereum)
-        require(msg.value == totalCostInWei, "Incorrect native amount");
+    // Override richiesto da Solidity per ERC1155 + ERC2981
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC2981) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
-    totalMinted[tokenId] += quantity;
-    _mint(msg.sender, tokenId, quantity, "");
-    emit NFTMinted(msg.sender, tokenId, quantity, pricesInWei[tokenId], encryptedURIs[tokenId]);
-}
+    // Override della funzione royaltyInfo per regole personalizzate e modificabili
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view override returns (address, uint256) {
+        uint96 feeNumerator = 0;
+        for (uint256 i = 0; i < royaltyRanges.length; i++) {
+            if (tokenId >= royaltyRanges[i].minId && tokenId <= royaltyRanges[i].maxId) {
+                feeNumerator = royaltyRanges[i].feeNumerator;
+                break;
+            }
+        }
+        uint256 royaltyAmount = (salePrice * feeNumerator) / _feeDenominator();
+        return (royaltyRecipient(), royaltyAmount);
+    }
+
+    function royaltyRecipient() public view returns (address) {
+        return owner();
+    }
+
+    // (Opzionale) Funzione per cambiare la royalty
+    function setRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
+        _setDefaultRoyalty(receiver, feeNumerator);
+    }
+
+    // Funzione per aggiornare le fasce di royalty (soloOwner)
+    function setRoyaltyRange(uint256 index, uint256 minId, uint256 maxId, uint96 feeNumerator) external onlyOwner {
+        require(index < royaltyRanges.length, "Invalid index");
+        royaltyRanges[index] = RoyaltyRange(minId, maxId, feeNumerator);
+    }
+
+    function addRoyaltyRange(uint256 minId, uint256 maxId, uint96 feeNumerator) external onlyOwner {
+        royaltyRanges.push(RoyaltyRange(minId, maxId, feeNumerator));
+    }
+
+    function mintNFT(uint256 tokenId, uint256 quantity, bool payWithToken) external payable {
+        require(isValidTokenId[tokenId], "Invalid tokenId");
+        require(totalMinted[tokenId] + quantity <= maxSupply[tokenId], "Exceeds max supply");
+        require(quantity > 0, "Invalid quantity");
+
+        uint256 totalCostInWei = pricesInWei[tokenId] * quantity;
+
+        if (payWithToken) {
+            paymentToken.safeTransferFrom(msg.sender, address(this), totalCostInWei);
+        } else {
+            // Pagamento con valuta nativa (MATIC su Polygon, ETH su Ethereum)
+            require(msg.value == totalCostInWei, "Incorrect native amount");
+        }
+
+        totalMinted[tokenId] += quantity;
+        _mint(msg.sender, tokenId, quantity, "");
+        emit NFTMinted(msg.sender, tokenId, quantity, pricesInWei[tokenId], encryptedURIs[tokenId]);
+    }
 
     function withdrawTokens() external onlyOwner {
         uint256 balance = paymentToken.balanceOf(address(this));
@@ -111,8 +168,9 @@ function mintNFT(uint256 tokenId, uint256 quantity, bool payWithToken) external 
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
-        require(isValidTokenId[tokenId], "TokenId not valid");
-        require(bytes(tokenCIDs[tokenId]).length > 0, "Token CID not set");
+        if (!isValidTokenId[tokenId] || bytes(tokenCIDs[tokenId]).length == 0) {
+            return string(abi.encodePacked("ipfs://", previewCID));
+        }
         return string(abi.encodePacked("ipfs://", tokenCIDs[tokenId]));
     }
 
@@ -135,8 +193,8 @@ function mintNFT(uint256 tokenId, uint256 quantity, bool payWithToken) external 
     }
 
     function setTokenCID(uint256 tokenId, string memory cid) external onlyOwner {
-    require(isValidTokenId[tokenId], "Invalid tokenId");
-    tokenCIDs[tokenId] = cid;
+        require(isValidTokenId[tokenId], "Invalid tokenId");
+        tokenCIDs[tokenId] = cid;
     }
    
     function requestBurn(uint256 tokenId, uint256 quantity) external {

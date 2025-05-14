@@ -17,15 +17,16 @@ describe("LHILecceNFT", function () {
       "Wrapped Ether",
       "WETH",
       owner.address,
-      hre.ethers.utils.parseEther("1000000")
+      hre.ethers.parseEther("1000000")
     );
-    await weth.deployed();
+    await weth.waitForDeployment();
+    const wethAddress = await weth.getAddress();
 
     // Deploy NFT contract con indirizzo WETH
     const LHILecceNFT = await hre.ethers.getContractFactory("LHILecceNFT");
     const baseURI = "ipfs://";
-    contract = await LHILecceNFT.deploy(baseURI, owner.address, weth.address);
-    await contract.deployed();
+    contract = await LHILecceNFT.deploy(baseURI, owner.address, wethAddress);
+    await contract.waitForDeployment();
   });
 
   it("Should mint NFTs correctly with native", async function () {
@@ -42,7 +43,7 @@ describe("LHILecceNFT", function () {
   it("Should revert if insufficient ERC20 allowance", async function () {
     const tokenId = 2;
     const quantity = 1;
-    await weth.transfer(addr1.address, hre.ethers.utils.parseEther("1"));
+    await weth.transfer(addr1.address, hre.ethers.parseEther("1"));
     // No approve
     await expect(
       contract.connect(addr1).mintNFT(tokenId, quantity, true)
@@ -67,10 +68,10 @@ describe("LHILecceNFT", function () {
 
     await contract.connect(addr1).mintNFT(tokenId, quantity, false, { value: price });
 
-    const initialContractBalance = await hre.ethers.provider.getBalance(contract.address);
+    const initialContractBalance = await hre.ethers.provider.getBalance(await contract.getAddress());
     await contract.connect(owner).withdrawFunds();
 
-    const finalContractBalance = await hre.ethers.provider.getBalance(contract.address);
+    const finalContractBalance = await hre.ethers.provider.getBalance(await contract.getAddress());
     expect(finalContractBalance).to.equal(0);
     expect(initialContractBalance).to.equal(price);
   });
@@ -81,15 +82,15 @@ describe("LHILecceNFT", function () {
     const price = await contract.pricesInWei(tokenId);
     const totalPrice = price.mul(quantity);
 
-    await weth.transfer(addr1.address, hre.ethers.utils.parseEther("10"));
-    await weth.connect(addr1).approve(contract.address, hre.ethers.utils.parseEther("10"));
+    await weth.transfer(addr1.address, hre.ethers.parseEther("10"));
+    await weth.connect(addr1).approve(await contract.getAddress(), hre.ethers.parseEther("10"));
     await contract.connect(addr1).mintNFT(tokenId, quantity, true);
 
-    const contractBalance = await weth.balanceOf(contract.address);
+    const contractBalance = await weth.balanceOf(await contract.getAddress());
     expect(contractBalance).to.equal(totalPrice);
 
     await contract.connect(owner).withdrawTokens();
-    expect(await weth.balanceOf(contract.address)).to.equal(0);
+    expect(await weth.balanceOf(await contract.getAddress())).to.equal(0);
   });
 
   it("Should revert if a non-owner tries to withdraw native funds", async function () {
@@ -107,8 +108,8 @@ describe("LHILecceNFT", function () {
     const quantity = 1;
     const price = await contract.pricesInWei(tokenId);
 
-    await weth.transfer(addr1.address, hre.ethers.utils.parseEther("10"));
-    await weth.connect(addr1).approve(contract.address, hre.ethers.utils.parseEther("10"));
+    await weth.transfer(addr1.address, hre.ethers.parseEther("10"));
+    await weth.connect(addr1).approve(await contract.getAddress(), hre.ethers.parseEther("10"));
     await contract.connect(addr1).mintNFT(tokenId, quantity, true);
 
     await expect(contract.connect(addr1).withdrawTokens()).to.be.reverted;

@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LHI Lecce NFT Frontend Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>LHI Lecce NFT. Test di transazione mintNFT</h1>
+    <button class="mint-btn" id="mint-btn">Mint NFT (Test)</button>
+    <div class="log" id="log" style="background:#e0f7fa; padding:10px; margin-top:10px; border-radius:8px;"></div>
+  </div>
+  <script>
+    const CONTRACT_ABI = [
+      {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"},{"internalType":"address","name":"_paymentToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
+      {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bool","name":"stake","type":"bool"}],"name":"mintNFT","outputs":[],"stateMutability":"payable","type":"function"},
+      {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"uri","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+      {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+    ];
+    const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
+
+    function logMsg(msg) {
+      document.getElementById('log').textContent = msg;
+    }
+
+    document.getElementById('mint-btn').onclick = async function() {
+      logMsg('Preparazione transazione di test...');
+      try {
+        if (!window.ethereum) {
+          logMsg('Installa Metamask o un wallet compatibile.');
+          return;
+        }
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        const tokenId = 1;
+        const amount = 1;
+        const stake = false;
+        const price = await contract.pricesInWei(tokenId);
+
+        logMsg(`Prezzo unitario recuperato: ${ethers.utils.formatEther(price)} ETH/MATIC/WETH`);
+
+        const totalPrice = price.mul(amount);
+
+        logMsg(`Inizio transazione: mintNFT con tokenId=${tokenId}, quantità=${amount}, totale=${ethers.utils.formatEther(totalPrice)}`);
+
+        const tx = await contract.mintNFT(tokenId, amount, stake, { value: totalPrice });
+        logMsg('Transazione inviata, in attesa di conferma...');
+        await tx.wait();
+
+        logMsg('✅ Mint completato con successo! Transaction hash: ' + tx.hash);
+      } catch (err) {
+        logMsg('❌ Errore: ' + (err.data?.message || err.message || err));
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>

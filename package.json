@@ -24,6 +24,7 @@
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
+    "@types/react": "~19.0.10",
     "chai": "^4.5.0",
     "cookie": "^1.0.2",
     "dotenv": "^16.0.3",
@@ -31,8 +32,7 @@
     "hardhat-gas-reporter": "^1.0.10",
     "solidity-coverage": "^0.8.15",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "@types/react": "~19.0.10"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -40,6 +40,7 @@
   "author": "Avvocato",
   "license": "MIT",
   "dependencies": {
+    "@expo/metro-runtime": "~5.0.4",
     "@openzeppelin/contracts": "^5.3.0",
     "@walletconnect/web3-provider": "^1.8.0",
     "compile": "^0.0.2",
@@ -47,10 +48,10 @@
     "ethers": "^6.13.7",
     "expo": "^53.0.8",
     "express": "^5.1.0",
-    "react-native": "^0.79.1",
-    "yarn": "^1.22.22",
+    "morgan": "^1.10.0",
     "react-dom": "19.0.0",
+    "react-native": "^0.79.1",
     "react-native-web": "^0.20.0",
-    "@expo/metro-runtime": "~5.0.4"
+    "yarn": "^1.22.22"
   }
 }

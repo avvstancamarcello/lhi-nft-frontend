@@ -5,12 +5,12 @@ const morgan = require('morgan'); // Importa il middleware per il logging
 
 const app = express();
 
-// Middleware per il logging delle richieste HTTP
+// Middleware per il logging delle possibili richieste HTTP
 app.use(morgan('combined')); // 'combined' fornisce un log standard dettagliato
 app.use(cors());
 app.use(express.json());
 
-// Legge le chiavi dalla variabile di ambiente KEYS_JSON
+// Legge tutte le chiavi dalla variabile di ambiente KEYS_JSON
 let keys;
 try {
     keys = JSON.parse(process.env.KEYS_JSON || '{}');
@@ -20,11 +20,11 @@ try {
     process.exit(1); // Fermiamo il server se KEYS_JSON è invalido
 }
 
-// Provider Polygon
+// Provider Polygon che distribuisce lo smart contract
 const provider = new ethers.JsonRpcProvider('https://polygon-rpc.com');
 console.log('🔗 Connessione al provider Polygon stabilita.');
 
-// Contratto
+// Contratto smart su Polygon Mainet
 const CONTRACT_ADDRESS = '0x6a6d5Dc29ad8ff23209186775873e123b31c26E9';
 const CONTRACT_ABI = ['function balanceOf(address owner, uint256 id) view returns (uint256)'];
 const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);

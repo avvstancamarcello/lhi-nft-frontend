@@ -1,0 +1,4 @@
+fuzz:
+  targets:
+    - contracts/LHILecceNFT.sol
+  deployed_contract_address: 0x0580275C6F4999629F381A315db0BeF48FFaC88A 

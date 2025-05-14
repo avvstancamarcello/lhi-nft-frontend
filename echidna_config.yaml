@@ -1,0 +1,5 @@
+testMode: assertion
+args:
+  - "ipfs://bafkreight2qjl53xhxxhhqagqccdk7ryj4455zx3ggazk7mqpbzxxiqlma"
+  - "0xf9909c6CD90566BD56621EE0cAc42986ae334Ea3"
+  - "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"

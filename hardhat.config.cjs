@@ -1,8 +1,5 @@
 require("dotenv").config();
-console.log("DEBUG - BASE_RPC_URL:", process.env.BASE_RPC_URL);
-require("@nomiclabs/hardhat-ethers")
-require("@nomiclabs/hardhat-waffle");
-require("ethereum-waffle");
+require("@nomicfoundation/hardhat-toolbox");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 if (!PRIVATE_KEY) {
@@ -10,9 +7,17 @@ if (!PRIVATE_KEY) {
 }
 
 module.exports = {
-  solidity: "0.8.20",
+  defaultNetwork: "hardhat",
+  solidity: {
+    version: "0.8.26",
+    settings: {}
+  },
   networks: {
-    hardhat: { chainId: 31337 },
+    hardhat: {},
+    myQuickNode: {
+      url: "https://aged-tiniest-frost.matic.quiknode.pro/b50bb4625032afb94b57bf5efd608270059e0da8/",
+      accounts: [PRIVATE_KEY],
+    },
     localhost: { url: "http://127.0.0.1:8545" },
     polygon: {
       url: process.env.POLYGON_RPC_URL,

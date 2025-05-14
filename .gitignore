@@ -39,4 +39,4 @@ yarn-error.log*
 contract-address.json
 
 # Script non tracciati
-scripts/verifyPrivateKey2.js
+scripts/verifyPrivateKey2.jskeys.json

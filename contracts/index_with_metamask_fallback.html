@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LHI Lecce NFT Frontend - Metamask Fallback</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #e0f7fa; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    button { padding: 10px 20px; margin: 10px 0; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
+    #log { margin-top: 20px; background: #f1f1f1; padding: 10px; border-radius: 5px; min-height: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LHI Lecce NFT - Connessione Metamask (Fallback)</h1>
+    <button id="connect-btn">Connetti Metamask</button>
+    <button id="mint-btn" disabled>Mint NFT (Test)</button>
+    <div id="log">Status: In attesa di connessione...</div>
+  </div>
+
+  <script>
+    const CONTRACT_ABI = [
+      {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"},{"internalType":"address","name":"_paymentToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
+      {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bool","name":"stake","type":"bool"}],"name":"mintNFT","outputs":[],"stateMutability":"payable","type":"function"},
+      {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+    ];
+    const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
+    let provider, signer, contract;
+
+    function logMsg(msg) {
+      document.getElementById('log').textContent = msg;
+    }
+
+    document.getElementById('connect-btn').onclick = async function() {
+      if (typeof window.ethereum === 'undefined') {
+        logMsg('❌ Metamask non rilevato. Apri manualmente: https://metamask.io/download.html');
+        return;
+      }
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        logMsg('✅ Connesso a Metamask! Pronto per mint.');
+        document.getElementById('mint-btn').disabled = false;
+      } catch (err) {
+        logMsg('❌ Errore durante la connessione: ' + err.message);
+      }
+    };
+
+    document.getElementById('mint-btn').onclick = async function() {
+      if (!contract) {
+        logMsg('⚠ Devi prima connettere Metamask.');
+        return;
+      }
+      try {
+        const tokenId = 1;
+        const amount = 1;
+        const stake = false;
+        const price = await contract.pricesInWei(tokenId);
+        const totalPrice = price.mul(amount);
+
+        logMsg(`Minting tokenId={tokenId}, quantità={amount}, prezzo totale={ethers.utils.formatEther(totalPrice)} ETH...`);
+
+        const tx = await contract.mintNFT(tokenId, amount, stake, { value: totalPrice });
+        logMsg('⏳ Transazione inviata, in attesa di conferma...');
+        await tx.wait();
+        logMsg('✅ Mint completato! Hash transazione: ' + tx.hash);
+      } catch (err) {
+        logMsg('❌ Errore nel mint: ' + (err.data?.message || err.message || err));
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
