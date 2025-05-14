@@ -27,6 +27,10 @@ app.post('/get-key', async (req, res) => {
         return res.status(400).json({ error: 'Missing address or tokenId' });
     }
 
+app.get("/", (req, res) => {
+        res.send("✅ Server attivo su Heroku!");
+      });
+      
     try {
         const balance = await contract.balanceOf(address, tokenId);
         if (balance.toNumber() > 0) {
