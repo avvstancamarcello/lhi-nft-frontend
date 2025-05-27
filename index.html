@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>LHI Lecce NFT - Mint Frontend</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #e0f7fa; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    button { padding: 10px 20px; margin: 10px 0; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
+    img { width: 100%; max-width: 300px; margin-top: 10px; border: 1px solid #ccc; }
+    #log { margin-top: 20px; background: #f1f1f1; padding: 10px; border-radius: 5px; min-height: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LHI Lecce NFT - Mint Frontend</h1>
+    <button id="connect-btn">Connetti Metamask</button>
+    <select id="token-select"></select>
+    <img id="preview" src="" alt="Anteprima NFT">
+    <input type="number" id="quantity" value="1" min="1" max="10">
+    <button id="mint-btn" disabled>Mint NFT</button>
+    <div id="log">Status: In attesa di connessione...</div>
+  </div>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
+    const CONTRACT_ABI = [
+      {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"},{"internalType":"address","name":"_paymentToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
+      {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bool","name":"stake","type":"bool"}],"name":"mintNFT","outputs":[],"stateMutability":"payable","type":"function"},
+      {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+    ];
+
+    const IPFS_CID = "bafybeichuinbo3mpw2wrvztwmmj2zpmtkmekqjexvqrbodochzix7hxffe";
+    let provider, signer, contract;
+
+    const connectBtn = document.getElementById('connect-btn');
+    const mintBtn = document.getElementById('mint-btn');
+    const logDiv = document.getElementById('log');
+    const tokenSelect = document.getElementById('token-select');
+    const previewImg = document.getElementById('preview');
+
+    connectBtn.onclick = async () => {
+      if (!window.ethereum) {
+        log('❌ Installa Metamask.');
+        return;
+      }
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        log('✅ Connesso a Metamask!');
+        mintBtn.disabled = false;
+      } catch (err) {
+        log('❌ Errore connessione: ' + err.message);
+      }
+    };
+
+    mintBtn.onclick = async () => {
+      const tokenId = parseInt(tokenSelect.value);
+      const quantity = parseInt(document.getElementById('quantity').value);
+      try {
+        const price = await contract.pricesInWei(tokenId);
+        const totalPrice = price.mul(quantity);
+        log(`⏳ Minting token ${tokenId}...`);
+        const tx = await contract.mintNFT(tokenId, quantity, false, { value: totalPrice });
+        await tx.wait();
+        log('✅ Mint completato! Hash: ' + tx.hash);
+      } catch (err) {
+        log('❌ Errore mint: ' + (err.data?.message || err.message));
+      }
+    };
+
+    tokenSelect.onchange = () => {
+      const selected = tokenSelect.value.padStart(2, '0');
+      const extensions = ['.jpg', '.JPG'];
+      let found = false;
+
+      for (const ext of extensions) {
+        const url = `https://gateway.pinata.cloud/ipfs/${IPFS_CID}/${selected}${ext}`;
+        fetch(url, { method: 'HEAD' }).then((res) => {
+          if (res.ok && !found) {
+            previewImg.src = url;
+            found = true;
+          }
+        });
+      }
+
+      if (!found) {
+        previewImg.src = '';
+        log('⚠️ Anteprima non trovata.');
+      }
+    };
+
+    // Inizializza opzioni e preview
+    window.onload = () => {
+      for (let i = 1; i <= 24; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `LHI #${i}`;
+        tokenSelect.appendChild(option);
+      }
+      tokenSelect.onchange();
+    };
+
+    function log(message) {
+      logDiv.textContent = message;
+    }
+  </script>
+</body>
+</html>
