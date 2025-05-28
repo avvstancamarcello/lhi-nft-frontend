@@ -1,346 +1,324 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>LHI Lecce NFT - Mint Frontend</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            padding: 20px;
-            margin: 0;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header b {
-            font-size: 110%;
-            color: #b22222;
-        }
-        .header .link {
-            display: block;
-            font-size: 100%;
-            margin-top: 4px;
-            color: #1a0dab;
-        }
-        .header .subtitle {
-            font-size: 110%;
-            margin-top: 10px;
-        }
-        .green {
-            color: green;
-            font-weight: bold;
-        }
-        .red {
-            color: red;
-            font-weight: bold;
-        }
-        .darkgreen {
-            color: darkgreen;
-            font-weight: bold;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        #preview {
-            display: block;
-            margin: 10px auto;
-            width: 350px;
-            height: 350px;
-            object-fit: contain;
-            border: 3px solid blue;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-            gap: 10px;
-            justify-items: center;
-            margin-bottom: 20px;
-        }
-        .token-button {
-            background-color: #00bcd4;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .token-button:hover {
-            background-color: #0097a7;
-        }
-        #log {
-            margin-top: 20px;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-            min-height: 40px;
-            text-align: center;
-        }
-        .actions {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .actions input, .actions button {
-            font-size: 16px;
-            padding: 10px;
-            margin: 5px;
-        }
-        /* Media Queries per dispositivi mobili */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px; /* Riduci il padding generale */
-            }
-            .container {
-                width: 95%; /* Occupa quasi tutta la larghezza dello schermo */
-                margin: 10px auto; /* Riduci il margine per schermi piccoli */
-                padding: 15px; /* Riduci il padding interno */
-            }
-            .header b {
-                font-size: 100%; /* Riduci leggermente la dimensione del titolo */
-            }
-            .header .link, .header .subtitle {
-                font-size: 90%; /* Riduci la dimensione dei link e sottotitoli */
-            }
-            #preview {
-                width: 90%; /* Rendi l'immagine più grande su schermi piccoli */
-                height: auto; /* Mantieni le proporzioni */
-            }
-            .grid {
-                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Adatta i pulsanti */
-                gap: 5px; /* Riduci lo spazio tra i pulsanti */
-            }
-            .token-button {
-                font-size: 14px; /* Riduci la dimensione del font sui pulsanti */
-                padding: 8px 10px;
-            }
-            .actions input, .actions button {
-                font-size: 14px; /* Riduci la dimensione del font per input e bottoni azione */
-                padding: 8px;
-                display: block; /* Metti input e bottoni su righe separate */
-                margin: 5px auto; /* Centra gli elementi di blocco */
-                width: 90%; /* Occupa più larghezza */
-            }
-            #log {
-                font-size: 14px; /* Riduci la dimensione del log */
-                padding: 8px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>LHI Lecce NFT - Mint Frontend</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      padding: 20px;
+      margin: 0;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header b {
+      font-size: 110%;
+      color: #b22222;
+    }
+    .header .link {
+      display: block;
+      font-size: 100%;
+      margin-top: 4px;
+      color: #1a0dab;
+    }
+    .header .subtitle {
+      font-size: 110%;
+      margin-top: 10px;
+    }
+    .green {
+      color: green;
+      font-weight: bold;
+    }
+    .red {
+      color: red;
+      font-weight: bold;
+    }
+    .darkgreen {
+      color: darkgreen;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #preview {
+      display: block;
+      margin: 10px auto;
+      width: 350px;
+      height: 350px;
+      object-fit: contain;
+      border: 3px solid blue;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: 10px;
+      justify-items: center;
+      margin-bottom: 20px;
+    }
+    .token-button {
+      background-color: #00bcd4;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .token-button:hover {
+      background-color: #0097a7;
+    }
+    #log {
+      margin-top: 20px;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 40px;
+      text-align: center;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .actions input, .actions button {
+      font-size: 16px;
+      padding: 10px;
+      margin: 5px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <b>LHI Lecce MEDICAL HOTEL ITALIA</b>
-            <a class="link" href="https://lhilecce.it" target="_blank">lhilecce.it</a>
-            <a class="link" href="https://maps.app.goo.gl/mJDgv9wgqtEVovZGA" target="_blank">Esplora Posizione</a>
-            <div class="subtitle">
-                <span class="green">CROWNFOUNDING INTERNATIONAL</span> su blockchain Polygon (Matic-Ethereum)<br>
-                <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
-            </div>
-        </div>
-
-        <img id="preview" src="" alt="Anteprima NFT" />
-
-        <div class="grid" id="button-container"></div>
-
-        <div class="actions">
-            <button id="connect-btn">Connetti Metamask</button><br/>
-            Quantità: <input type="number" id="quantity" value="1" min="1" max="10" />
-            <button id="mint-btn" disabled>Mint NFT</button>
-        </div>
-
-        <div id="log">Status: In attesa di connessione...</div>
+  <div class="container">
+    <div class="header">
+      <b>LHI Lecce MEDICAL HOTEL ITALIA</b>
+      <a class="link" href="https://lhilecce.it" target="_blank">lhilecce.it</a>
+      <a class="link" href="https://maps.app.goo.gl/mJDgv9wgqtEVovZGA" target="_blank">Esplora Posizione</a>
+      <div class="subtitle">
+        <span class="green">CROWNFOUNDING INTERNATIONAL</span> su blockchain Polygon (Matic-Ethereum)<br>
+        <span class="red">FIBROMIALGIA</span> & <span class="darkgreen">DEPRESSIONE</span>
+      </div>
     </div>
 
-    <script>
-        const tokenValues = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
-        const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
-        const CONTRACT_ABI = [
-            // COSTRUTTORE CORRETTO (due input: _baseURI, _owner)
-            {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
+    <img id="preview" src="" alt="Anteprima NFT" />
 
-            // FUNZIONE mintNFT (come era, sembra corretta per l'ABI del tuo contratto)
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"quantity","type":"uint256"},{"internalType":"bool","name":"stake","type":"bool"}],"name":"mintNFT","outputs":[],"stateMutability":"payable","type":"function"},
+    <div class="grid" id="button-container"></div>
 
-            // FUNZIONE pricesInWei (come era, sembra corretta)
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+    <div class="actions">
+      <button id="connect-btn">Connetti Metamask</button><br/>
+      Quantità: <input type="number" id="quantity" value="1" min="1" max="10" />
+      <button id="mint-btn" disabled>Mint NFT</button>
+    </div>
 
-            // AGGIUNTO: FUNZIONE getEncryptedURI
-            {"inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
-                "name": "getEncryptedURI",
-                "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-                "stateMutability": "view",
-                "type": "function"
-            },
+    <div id="log">Status: In attesa di connessione...</div>
+  </div>
 
-            // AGGIUNTO: FUNZIONE balanceOf (NECESSARIO per showOwnedNFTs)
-            {
-                "inputs": [{"internalType": "address", "name": "account", "type": "address"}, {"internalType": "uint256", "name": "id", "type": "uint256"}],
-                "name": "balanceOf",
-                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-                "stateMutability": "view",
-                "type": "function"
-            }
-        ];
+  <script>
+    const tokenValues = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+    const CONTRACT_ADDRESS = "0x6a6d5Dc29ad8ff23209186775873e123b31c26E9";
+    const CONTRACT_ABI = [
+    // COSTRUTTORE CORRETTO (due input: _baseURI, _owner)
+    {"inputs":[{"internalType":"string","name":"_baseURI","type":"string"},{"internalType":"address","name":"_owner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
 
-        let provider, signer, contract, selectedTokenId = null;
+    // FUNZIONE mintNFT (come era, sembra corretta per l'ABI del tuo contratto)
+    {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"quantity","type":"uint256"},{"internalType":"bool","name":"stake","type":"bool"}],"name":"mintNFT","outputs":[],"stateMutability":"payable","type":"function"},
 
-        // Dichiarazione delle variabili DOM qui, prima di usarle negli event listener
-        // Queste variabili saranno assegnate all'interno di DOMContentLoaded per garantire che gli elementi esistano
-        let previewImg, logDiv, mintBtn, quantityInput, connectBtn, buttonContainer;
+    // FUNZIONE pricesInWei (come era, sembra corretta)
+    {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"pricesInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
 
-        // Definisci l'URL del tuo backend Heroku
-        const BACKEND_DECRYPT_URL = "https://lhileccenft-f81f1a577d45.herokuapp.com/get-key";
+    // AGGIUNTO: FUNZIONE getEncryptedURI
+    {"inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "getEncryptedURI",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+    },
 
-        // Funzione per decifrare e visualizzare l'NFT
-        async function displayDecryptedNFT(tokenId) {
-            try {
-                log(`⏳ Recupero e decifro NFT per TokenID ${tokenId}...`);
+    // AGGIUNTO: FUNZIONE balanceOf (NECESSARIO per showOwnedNFTs)
+    {
+    "inputs": [{"internalType": "address", "name": "account", "type": "address"}, {"internalType": "uint256", "name": "id", "type": "uint256"}],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+    }
+    ];
 
-                // 1. Ottieni l'URI criptato (CID) dal contratto
-                const encryptedURI = await contract.getEncryptedURI(tokenId);
-                log(`🔎 URI criptato dal contratto: ${encryptedURI}`);
+    let provider, signer, contract, selectedTokenId = null;
 
-                // 2. Invia l'URI criptato al tuo backend Heroku per la decifrazione
-                const response = await fetch(BACKEND_DECRYPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ encryptedURI: encryptedURI })
-                });
+    const previewImg = document.getElementById('preview');
+    const logDiv = document.getElementById('log');
+    const mintBtn = document.getElementById('mint-btn');
+    const quantityInput = document.getElementById('quantity');
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`Errore dal backend (${response.status}): ${errorData.message || response.statusText}`);
-                }
+    // Definisci l'URL del tuo backend Heroku
+    const BACKEND_DECRYPT_URL = "https://lhileccenft-f81f1a577d45.herokuapp.com/get-key"; // CAMBIA QUI
 
-                const data = await response.json();
-                const decryptedImageUrl = data.decryptedImageUrl; // Assicurati che il tuo backend restituisca questo campo
-                if (!decryptedImageUrl) {
-                    throw new Error("Il backend non ha restituito un URL di immagine valido.");
-                }
+    // Assicurati che il tuo backend abbia un endpoint come /decrypt che accetti POST con { encryptedURI: 'cid' }
 
-                // 3. Visualizza l'immagine decifrata
-                previewImg.src = decryptedImageUrl;
-                log(`✅ Immagine NFT decifrata e caricata: ${decryptedImageUrl}`);
+    // Funzione per decifrare e visualizzare l'NFT
+    async function displayDecryptedNFT(tokenId) {
+        try {
+            log(`⏳ Recupero e decifro NFT per TokenID ${tokenId}...`);
 
-            } catch (err) {
-                log(`❌ Errore durante la decifrazione/visualizzazione dell'NFT: ${err.message}`);
-                previewImg.src = ""; // Pulisci l'immagine in caso di errore
-            }
-        }
+            // 1. Ottieni l'URI criptato (CID) dal contratto
+            // Assicurati che 'getEncryptedURI' sia nel CONTRACT_ABI
+            const encryptedURI = await contract.getEncryptedURI(tokenId);
+            log(`🔎 URI criptato dal contratto: ${encryptedURI}`);
 
-        // Funzione per mostrare gli NFT già posseduti
-        async function showOwnedNFTs() {
-            if (!provider || !signer) return;
-            try {
-                const userAddress = await signer.getAddress();
-                log(`🔎 Controllo NFT posseduti per: ${userAddress}`);
-
-                for (let i = 1; i <= 24; i++) { // Itera per tutti i possibili TokenId
-                    const balance = await contract.balanceOf(userAddress, i);
-                    if (balance > 0) {
-                        log(`🎉 Possiedi ${balance}x NFT TokenID ${i}. Tentativo di visualizzazione...`);
-                        await displayDecryptedNFT(i); // Visualizza l'NFT
-                        break; // Per ora, mostra solo il primo NFT posseduto trovato
-                    }
-                }
-            } catch (err) {
-                log("❌ Errore nel caricamento NFT posseduti: " + err.message);
-            }
-        }
-
-        // Funzione per impostare gli event listener e assegnare gli elementi DOM
-        const initializeFrontend = () => {
-            // Assegnazione degli elementi DOM qui per garantire che siano disponibili
-            previewImg = document.getElementById('preview');
-            logDiv = document.getElementById('log');
-            mintBtn = document.getElementById('mint-btn');
-            quantityInput = document.getElementById('quantity');
-            connectBtn = document.getElementById('connect-btn');
-            buttonContainer = document.getElementById('button-container'); // Assegnazione qui
-
-            // GESTORE CLICK: Connetti Metamask
-            connectBtn.onclick = async () => {
-                if (!window.ethereum) {
-                    log("❌ Installa Metamask.");
-                    return;
-                }
-                try {
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
-                    signer = provider.getSigner();
-                    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                    log("✅ Connesso a Metamask.");
-                    mintBtn.disabled = false;
-                    await showOwnedNFTs();
-                } catch (err) {
-                    log("❌ Connessione fallita: " + err.message);
-                }
-            };
-
-            // GESTORE CLICK: Mint NFT
-            mintBtn.onclick = async () => {
-                if (!selectedTokenId) return log("❌ Seleziona un NFT.");
-                const quantity = parseInt(quantityInput.value);
-                try {
-                    const price = await contract.pricesInWei(selectedTokenId);
-                    const total = price.mul(quantity);
-                    log(`⏳ Mint NFT ${selectedTokenId}...`);
-                    const tx = await contract.mintNFT(selectedTokenId, quantity, false, {
-                        value: total,
-                        gasLimit: 10000000 // APPLICAZIONE DEL GAS LIMIT QUI
-                    });
-                    await tx.wait();
-                    log("✅ Mint completato. Tx Hash: " + tx.hash);
-                    await displayDecryptedNFT(selectedTokenId);
-                } catch (err) {
-                    log("❌ Mint fallito: " + (err.data?.message || err.message));
-                }
-            };
-
-            renderButtons(); // Chiamata a renderButtons dopo che container è assegnato
-        };
-
-
-        function renderButtons() {
-            // 'container' è ora una variabile globale assegnata in initializeFrontend
-            tokenValues.forEach(val => {
-                const btn = document.createElement("button");
-                btn.textContent = val;
-                btn.className = "token-button";
-                btn.onclick = () => {
-                    selectedTokenId = val;
-                    const padded = val.toString().padStart(2, '0');
-                    const path = `images/${padded}.jpg`;
-                    fetch(path, { method: "HEAD" }).then(res => {
-                        if (res.ok) {
-                            previewImg.src = path;
-                            log("");
-                        } else {
-                            previewImg.src = "";
-                            log("⚠️ Anteprima non trovata.");
-                        }
-                    });
-                };
-                buttonContainer.appendChild(btn); // Usa buttonContainer
+            // 2. Invia l'URI criptato al tuo backend Heroku per la decifrazione
+            const response = await fetch(BACKEND_DECRYPT_URL, {
+                method: 'POST', // O 'GET' a seconda di come hai implementato l'endpoint nel backend
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ encryptedURI: encryptedURI })
             });
-        }
 
-        function log(message) {
-            logDiv.textContent = message;
-        }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Errore dal backend (${response.status}): ${errorData.message || response.statusText}`);
+            }
 
-        // Esegui initializeFrontend quando il DOM è completamente caricato
-        document.addEventListener('DOMContentLoaded', initializeFrontend);
-    </script>
+            const data = await response.json();
+            const decryptedImageUrl = data.decryptedImageUrl; // O il campo che il tuo backend restituisce
+            if (!decryptedImageUrl) {
+                throw new Error("Il backend non ha restituito un URL di immagine valido.");
+            }
+
+            // 3. Visualizza l'immagine decifrata
+            previewImg.src = decryptedImageUrl;
+            log(`✅ Immagine NFT decifrata e caricata: ${decryptedImageUrl}`);
+
+        } catch (err) {
+            log(`❌ Errore durante la decifrazione/visualizzazione dell'NFT: ${err.message}`);
+            previewImg.src = ""; // Pulisci l'immagine in caso di errore
+        }
+    }
+
+    // Modifica il gestore del click del pulsante Mint per chiamare displayDecryptedNFT dopo il successo
+    mintBtn.onclick = async () => {
+        if (!selectedTokenId) return log("❌ Seleziona un NFT.");
+        const quantity = parseInt(quantityInput.value);
+        try {
+            const price = await contract.pricesInWei(selectedTokenId);
+            const total = price.mul(quantity);
+            log(`⏳ Mint NFT ${selectedTokenId}...`);
+            const tx = await contract.mintNFT(selectedTokenId, quantity, false, { value: total }); // 'false' per lo staking
+            await tx.wait();
+            log("✅ Mint completato. Tx Hash: " + tx.hash);
+
+            // QUI: Dopo il mint riuscito, chiama la funzione per visualizzare l'NFT decifrato
+            await displayDecryptedNFT(selectedTokenId);
+
+        } catch (err) {
+            log("❌ Mint fallito: " + (err.data?.message || err.message));
+        }
+    };
+
+    // Aggiungi una funzione per mostrare gli NFT già posseduti (opzionale, ma consigliato)
+    async function showOwnedNFTs() {
+        if (!provider || !signer) return; // Assicurati che Metamask sia connesso
+        try {
+            const userAddress = await signer.getAddress();
+            log(`🔎 Controllo NFT posseduti per: ${userAddress}`);
+
+            // Dovrai implementare una logica qui per interrogare la blockchain sui token NFT che possiede l'utente.
+            // Il contratto ERC1155 ha una funzione balanceOf(address account, uint256 id)
+            // Potresti iterare da tokenId 1 a 24 e chiamare balanceOf per ciascuno.
+            // Se balanceOf > 0, l'utente possiede quel tokenId.
+            // Poi potresti chiamare displayDecryptedNFT(tokenId) per ciascuno.
+
+            // Esempio:
+            for (let i = 1; i <= 24; i++) {
+                const balance = await contract.balanceOf(userAddress, i);
+                if (balance > 0) {
+                    log(`🎉 Possiedi ${balance}x NFT TokenID ${i}. Tentativo di visualizzazione...`);
+                    // Chiama displayDecryptedNFT per il primo token posseduto che trovi
+                    // O potresti creare un pulsante per visualizzare ciascun NFT posseduto
+                    await displayDecryptedNFT(i); // Visualizza l'ultimo token posseduto per esempio
+                    break; // Per ora mostriamo solo il primo trovato
+                }
+            }
+
+
+        } catch (err) {
+            log("❌ Errore nel caricamento NFT posseduti: " + err.message);
+        }
+    }
+
+    // Chiama questa funzione all'avvio o dopo la connessione Metamask
+    // connectBtn.onclick = async () => { ... }
+    // All'interno del try, dopo `log("✅ Connesso a Metamask.");`
+    // potresti aggiungere: await showOwnedNFTs();
+
+    const connectBtn = document.getElementById('connect-btn');
+    connectBtn.onclick = async () => {
+      if (!window.ethereum) return log("❌ Installa Metamask.");
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        log("✅ Connesso a Metamask.");
+        mintBtn.disabled = false;
+      } catch (err) {
+        log("❌ Connessione fallita: " + err.message);
+      }
+    };
+
+    mintBtn.onclick = async () => {
+      if (!selectedTokenId) return log("❌ Seleziona un NFT.");
+      const quantity = parseInt(quantityInput.value);
+      try {
+        const price = await contract.pricesInWei(selectedTokenId);
+        const total = price.mul(quantity);
+        log(`⏳ Mint NFT ${selectedTokenId}...`);
+        const tx = await contract.mintNFT(selectedTokenId, quantity, false, {
+        value: total, gasLimit: 10000000 // Imposta un gas limit elevato, simile a quello dello script
+    });
+        await tx.wait();
+        log("✅ Mint completato. Tx Hash: " + tx.hash);
+      } catch (err) {
+        log("❌ Mint fallito: " + (err.data?.message || err.message));
+      }
+    };
+
+    function renderButtons() {
+      const container = document.getElementById("button-container");
+      tokenValues.forEach(val => {
+        const btn = document.createElement("button");
+        btn.textContent = val;
+        btn.className = "token-button";
+        btn.onclick = () => {
+          selectedTokenId = val;
+          const padded = val.toString().padStart(2, '0');
+          const path = `images/${padded}.jpg`;
+          fetch(path, { method: "HEAD" }).then(res => {
+            if (res.ok) {
+              previewImg.src = path;
+              log("");
+            } else {
+              previewImg.src = "";
+              log("⚠️ Anteprima non trovata.");
+            }
+          });
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function log(message) {
+      logDiv.textContent = message;
+    }
+
+    window.onload = renderButtons;
+  </script>
 </body>
 </html>
