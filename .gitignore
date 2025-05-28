@@ -1,0 +1,41 @@
+# Ignora i file di sistema di Windows
+*.Zone.Identifier
+
+# Ignora i moduli e i file di blocco di Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+
+# File di configurazione/chiavi sensibili (NON DEPLOIATI PUBBLICAMENTE)
+keys.json
+keys_decryptor.json
+cert.key
+cert.pem
+
+# Script di backend o di utility (NON fanno parte del frontend deployato)
+backend.js
+backend_combined.js
+backend_https.js
+server.js
+test_keys_heroku.sh
+test_keys.sh
+verifica.sh
+zip_output.py
+resize_watermark_350.py
+script_batch_watermark.py
+output_whatemark/
+Frontend_Github/
+
+# File zip di grandi dimensioni o non necessari per il deploy
+*.zip
+*.pdf
+Link_Pinata.txt
+struttura_progetto.png
+
+# Versioni alternative di index.html che non devono essere la pagina principale
+index_minimal.html
+index_with_images.html
+
+# File di cache o di sistema
+.DS_Store
+.gitattributes
