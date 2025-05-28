@@ -12,7 +12,7 @@ keys_decryptor.json
 cert.key
 cert.pem
 
-# Script di backend o di utility (NON fanno parte del frontend deployato)
+# Script di backend o di utility (NON fanno parte del frontend pubblico)
 backend.js
 backend_combined.js
 backend_https.js
