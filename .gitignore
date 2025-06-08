@@ -40,3 +40,4 @@ contract-address.json
 
 # Script non tracciati
 scripts/verifyPrivateKey2.jskeys.json
+history_output.txt
