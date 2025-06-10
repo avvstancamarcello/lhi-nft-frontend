@@ -1,53 +1,115 @@
-Ecco il codice completo da copiare in *src/App.js*, con collegamento al contratto all’indirizzo 0x6a6d5dc29ad8ff23209186775873e123b31c26e9 e 20 pulsanti di mint da 5 a 100:
+// App.js - React frontend con supporto per MetaMask, Coinbase Wallet e Binance (via WalletConnect)
 
-```js
-import React, { useState } from 'react';
-import Web3 from 'web3';
+import React, { useEffect, useState } from 'react';
+import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
+import Web3Modal from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from './abi';
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
   const [account, setAccount] = useState('');
+  const [provider, setProvider] = useState(null);
   const [status, setStatus] = useState('');
+  const [contract, setContract] = useState(null);
+
+  const tokenValues = Array.from({ length: 20 }, (_, i) => (i + 1) * 5);
+
+  const web3Modal = new Web3Modal({
+    cacheProvider: true,
+    providerOptions: {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          rpc: {
+            137: 'https://polygon-rpc.com' // Polygon Mainnet
+          }
+        }
+      },
+      coinbasewallet: {
+        package: CoinbaseWalletSDK,
+        options: {
+          appName: 'LHI NFT App',
+          rpc: 'https://polygon-rpc.com',
+          chainId: 137
+        }
+      }
+    }
+  });
 
   const connectWallet = async () => {
-    if (window.ethereum) {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      setAccount(accounts[0]);
-    } else {
-      alert('Install MetaMask');
+    try {
+      const externalProvider = await web3Modal.connect();
+      const ethersProvider = new ethers.providers.Web3Provider(externalProvider);
+      const signer = ethersProvider.getSigner();
+      const address = await signer.getAddress();
+      const nftContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      setAccount(address);
+      setProvider(ethersProvider);
+      setContract(nftContract);
+      setStatus('✅ Wallet connesso: ' + address);
+    } catch (err) {
+      setStatus('❌ Errore connessione wallet: ' + err.message);
     }
   };
 
   const mintNFT = async (amount) => {
     try {
-      const web3 = new Web3(window.ethereum);
-      const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-      const price = await contract.methods.price().call();
-      await contract.methods.mint(amount).send({
-        from: account,
-        value: web3.utils.toWei((price * amount).toString(), 'wei')
+      const price = await contract.price();
+      const total = BigNumber.from(price).mul(amount);
+      
+      const tx = await contract.mint(amount, {
+        value: total
       });
-      setStatus(Minted ${amount} NFTs);
+
+      await tx.wait();
+      setStatus(`✅ Mint completato per ${amount} NFT`);
     } catch (err) {
-      setStatus('Error: ' + err.message);
+      setStatus('❌ Errore durante mint: ' + err.message);
     }
   };
 
-  const options = Array.from({ length: 20 }, (_, i) => (i + 1) * 5);
+  const getDecryptionKey = async (tokenId) => {
+    try {
+      const response = await fetch(`${backendUrl}/get-key`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          address: account,
+          tokenId: tokenId
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setStatus(`🔑 Chiave token ${tokenId}: ${data.key}`);
+      } else {
+        setStatus('⚠️ Errore backend: ' + data.error);
+      }
+    } catch (err) {
+      setStatus('❌ Errore rete: ' + err.message);
+    }
+  };
 
   return (
     <div>
       <h1>LHI NFT Mint</h1>
       {!account ? (
-  <button onClick={connectWallet}>Connect Wallet</button>
+        <button onClick={connectWallet}>Connetti Wallet</button>
       ) : (
         <>
-          <p>Connected: {account}</p>
-          {options.map((amount) => (
-            <button key={amount} onClick={() => mintNFT(amount)}>
-              Mint {amount}
-            </button>
-          ))}
+          <p>Wallet: {account}</p>
+          <button onClick={() => getDecryptionKey('06')}>🔐 Ottieni chiave token #06</button>
+          <div>
+            {tokenValues.map(amount => (
+              <button key={amount} onClick={() => mintNFT(amount)}>Mint {amount}</button>
+            ))}
+          </div>
           <p>{status}</p>
         </>
       )}
@@ -56,4 +118,3 @@ function App() {
 }
 
 export default App;
-```
